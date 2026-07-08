@@ -1,0 +1,35 @@
+# Unreal Engine generated folders
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Plugin generated folders
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+
+# Visual Studio / Rider / IDE
+.vs/
+.idea/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+
+# Build outputs / packaged builds
+Build/
+Dist/
+Releases/
+
+# Optional: ignore built lighting data if using fully dynamic lighting
+# *_BuiltData.uasset
