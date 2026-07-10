@@ -18,7 +18,11 @@ public class MultiplayerArena : ModuleRules
 			"Slate"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"OnlineSubsystem",
+			"OnlineSubsystemUtils"
+		});
 
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
