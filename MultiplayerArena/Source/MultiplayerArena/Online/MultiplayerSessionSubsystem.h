@@ -10,6 +10,8 @@
 /**
  * 
  */
+class FOnlineSessionSearch;
+
 UCLASS(BlueprintType)
 class MULTIPLAYERARENA_API UMultiplayerSessionSubsystem : public UGameInstanceSubsystem
 {
@@ -21,10 +23,22 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Multiplayer|Sessions")
 	void CreateSession(int32 NumPublicConnections = 4);
+
+	UFUNCTION(BlueprintCallable, Category = "Multiplayer|Sessions")
+	void FindSessions(int32 MaxSearchResults = 50);
+
+	UFUNCTION(BlueprintCallable, Category = "Multiplayer|Sessions")
+	void JoinSession(int32 SearchResultIndex = 0);
 	
 private:
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(	FName SessionName,	EOnJoinSessionCompleteResult::Type Result);
 
 	FDelegateHandle CreateSessionCompleteDelegateHandle;
+	FDelegateHandle FindSessionsCompleteDelegateHandle;
+	FDelegateHandle JoinSessionCompleteDelegateHandle;
+
 	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 };
