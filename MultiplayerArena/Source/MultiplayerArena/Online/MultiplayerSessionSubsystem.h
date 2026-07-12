@@ -12,6 +12,8 @@
  */
 class FOnlineSessionSearch;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSessionSearchCompleted, bool, bWasSuccessful, int32, ResultCount);
+
 UCLASS(BlueprintType)
 class MULTIPLAYERARENA_API UMultiplayerSessionSubsystem : public UGameInstanceSubsystem
 {
@@ -29,6 +31,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Multiplayer|Sessions")
 	void JoinSession(int32 SearchResultIndex = 0);
+
+	UPROPERTY(BlueprintAssignable, Category = "Multiplayer|Sessions")
+	FOnSessionSearchCompleted OnSessionSearchCompleted;
 	
 private:
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);

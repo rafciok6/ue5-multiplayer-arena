@@ -118,13 +118,14 @@ void UMultiplayerSessionSubsystem::FindSessions(int32 MaxSearchResults)
 
 	if (!bRequestStarted)
 	{
-		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(
-			FindSessionsCompleteDelegateHandle);
+		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
 
 		FindSessionsCompleteDelegateHandle.Reset();
 		SessionSearch.Reset();
 
-		UE_LOG(LogTemp, Error, TEXT("Find sessions request could not be started"));
+		UE_LOG(LogTemp, Error, TEXT("Failed to start session search"));
+
+		OnSessionSearchCompleted.Broadcast(false, 0);
 	}
 }
 
@@ -154,9 +155,7 @@ void UMultiplayerSessionSubsystem::JoinSession(int32 SearchResultIndex)
 	}
 
 	JoinSessionCompleteDelegateHandle =	SessionInterface->AddOnJoinSessionCompleteDelegate_Handle(
-			FOnJoinSessionCompleteDelegate::CreateUObject(
-				this,
-				&UMultiplayerSessionSubsystem::OnJoinSessionComplete));
+			FOnJoinSessionCompleteDelegate::CreateUObject(this,	&UMultiplayerSessionSubsystem::OnJoinSessionComplete));
 
 	const bool bRequestStarted = SessionInterface->JoinSession(
 		0,
@@ -212,26 +211,27 @@ void UMultiplayerSessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 	if (!bWasSuccessful || !SessionSearch.IsValid())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to find sessions"));
+
+		OnSessionSearchCompleted.Broadcast(false, 0);
+		
 		return;
 	}
 
 	const int32 ResultCount = SessionSearch->SearchResults.Num();
 
-	UE_LOG(LogTemp, Log, TEXT("Session search completed. Results: %d"), ResultCount);
+	UE_LOG(LogTemp,Log,TEXT("Session search completed. Results: %d"),		ResultCount);
 
 	for (int32 Index = 0; Index < ResultCount; ++Index)
 	{
-		const FOnlineSessionSearchResult& Result = SessionSearch->SearchResults[Index];
+		const FOnlineSessionSearchResult& Result =SessionSearch->SearchResults[Index];
 
-		UE_LOG(
-			LogTemp,
-			Log,
-			TEXT("Session %d: Owner=%s, Ping=%d ms, OpenConnections=%d"),
-			Index,
+		UE_LOG(	LogTemp,Log,TEXT("Session %d: Owner=%s, Ping=%d ms, OpenConnections=%d"),Index,
 			*Result.Session.OwningUserName,
 			Result.PingInMs,
 			Result.Session.NumOpenPublicConnections);
 	}
+
+	OnSessionSearchCompleted.Broadcast(true, ResultCount);
 }
 
 void UMultiplayerSessionSubsystem::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
