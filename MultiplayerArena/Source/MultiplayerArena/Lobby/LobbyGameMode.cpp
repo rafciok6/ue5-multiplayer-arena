@@ -6,6 +6,7 @@
 #include "LobbyGameState.h"
 #include "LobbyPlayerController.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 
 ALobbyGameMode::ALobbyGameMode()
 {
@@ -25,6 +26,12 @@ void ALobbyGameMode::TryStartMatch(APlayerController* RequestingController)
 		return;
 	}
 
+	if (bMatchStartInProgress)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Start match ignored: travel is already in progress"));
+		return;
+	}
+	
 	ALobbyGameState* LobbyGameState = GetGameState<ALobbyGameState>();
 
 	if (LobbyGameState == nullptr)
@@ -67,12 +74,59 @@ void ALobbyGameMode::TryStartMatch(APlayerController* RequestingController)
 		return;
 	}
 
+	bMatchStartInProgress = true;
+
 	UE_LOG(
 		LogTemp,
 		Log,
-		TEXT("All %d players are ready. Starting match on %s"),
+		TEXT("All %d players are ready. Preparing travel to %s"),
 		PlayerCount,
 		*ArenaMapPath);
 
-	World->ServerTravel(ArenaMapPath);
+	for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator;	++Iterator)
+	{
+		ALobbyPlayerController* LobbyPlayerController =	Cast<ALobbyPlayerController>(Iterator->Get());
+
+		if (LobbyPlayerController != nullptr)
+		{
+			LobbyPlayerController->ClientShowLoadingScreen();
+		}
+	}
+
+	World->GetTimerManager().SetTimer(
+		StartMatchTimerHandle,
+		this,
+		&ALobbyGameMode::StartArenaTravel,
+		LoadingScreenDisplayTime,
+		false);
+}
+
+void ALobbyGameMode::StartArenaTravel()
+{
+	UWorld* World = GetWorld();
+
+	if (World == nullptr)
+	{
+		bMatchStartInProgress = false;
+
+		UE_LOG(LogTemp, Error, TEXT("Arena travel failed: world is invalid"));
+		return;
+	}
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("Starting server travel to %s"),
+		*ArenaMapPath);
+
+	if (!World->ServerTravel(ArenaMapPath))
+	{
+		bMatchStartInProgress = false;
+
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Failed to start server travel to %s"),
+			*ArenaMapPath);
+	}
 }

@@ -19,6 +19,9 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "Lobby")
 	void ServerRequestStartMatch();
 
+	UFUNCTION(Client, Reliable)
+	void ClientShowLoadingScreen();
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -33,6 +36,9 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Lobby")
 	bool IsLobbyHost() const;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Lobby|UI")
+	TSubclassOf<UUserWidget> LoadingScreenWidgetClass;
+	
 private:
 	void ShowInitialWidget();
 	void ShowWidget(TSubclassOf<UUserWidget> WidgetClass);

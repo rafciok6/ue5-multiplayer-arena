@@ -27,6 +27,16 @@ void ALobbyPlayerController::ServerRequestStartMatch_Implementation()
 	LobbyGameMode->TryStartMatch(this);
 }
 
+void ALobbyPlayerController::ClientShowLoadingScreen_Implementation()
+{
+	if (!IsLocalController())
+	{
+		return;
+	}
+
+	ShowWidget(LoadingScreenWidgetClass);
+}
+
 void ALobbyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
