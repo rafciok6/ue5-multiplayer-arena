@@ -9,6 +9,8 @@
 /**
  * 
  */
+class UUserWidget;
+
 UCLASS()
 class MULTIPLAYERARENA_API ALobbyPlayerController : public APlayerController
 {
@@ -16,4 +18,23 @@ class MULTIPLAYERARENA_API ALobbyPlayerController : public APlayerController
 public:
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "Lobby")
 	void ServerRequestStartMatch();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void PostSeamlessTravel() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Lobby|UI")
+	TSubclassOf<UUserWidget> MainMenuWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Lobby|UI")
+	TSubclassOf<UUserWidget> LobbyWidgetClass;
+
+private:
+	void ShowInitialWidget();
+	void ShowWidget(TSubclassOf<UUserWidget> WidgetClass);
+	void RemoveActiveWidget();
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> ActiveWidget;
 };
