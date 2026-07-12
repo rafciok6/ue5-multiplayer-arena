@@ -3,7 +3,8 @@
 
 #include "LobbyPlayerState.h"
 #include "Net/UnrealNetwork.h"
-
+#include "LobbyGameState.h"
+#include "Engine/World.h"
 
 void ALobbyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -35,4 +36,18 @@ void ALobbyPlayerState::OnRep_IsReady()
 		TEXT("Player %s ready state changed to: %s"),
 		*GetPlayerName(),
 		bIsReady ? TEXT("Ready") : TEXT("Not Ready"));
+
+	UWorld* World = GetWorld();
+
+	if (World == nullptr)
+	{
+		return;
+	}
+
+	ALobbyGameState* LobbyGameState = World->GetGameState<ALobbyGameState>();
+
+	if (LobbyGameState != nullptr)
+	{
+		LobbyGameState->NotifyLobbyPlayersChanged();
+	}
 }

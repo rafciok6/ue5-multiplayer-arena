@@ -30,3 +30,22 @@ bool ALobbyGameState::AreAllPlayersReady() const
 
 	return GetReadyPlayerCount() == PlayerArray.Num();
 }
+
+void ALobbyGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	OnLobbyPlayersChanged.Broadcast();
+}
+
+void ALobbyGameState::RemovePlayerState(APlayerState* PlayerState)
+{
+	Super::RemovePlayerState(PlayerState);
+
+	OnLobbyPlayersChanged.Broadcast();
+}
+
+void ALobbyGameState::NotifyLobbyPlayersChanged()
+{
+	OnLobbyPlayersChanged.Broadcast();
+}
