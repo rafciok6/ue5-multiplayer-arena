@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Lobby|UI")
 	TSubclassOf<UUserWidget> LobbyWidgetClass;
 
+	UFUNCTION(BlueprintPure, Category = "Lobby")
+	bool IsLobbyHost() const;
+
 private:
 	void ShowInitialWidget();
 	void ShowWidget(TSubclassOf<UUserWidget> WidgetClass);

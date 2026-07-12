@@ -54,6 +54,11 @@ void ALobbyPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+bool ALobbyPlayerController::IsLobbyHost() const
+{
+	return IsLocalController() && HasAuthority();
+}
+
 void ALobbyPlayerController::ShowInitialWidget()
 {
 	if (!IsLocalController())
