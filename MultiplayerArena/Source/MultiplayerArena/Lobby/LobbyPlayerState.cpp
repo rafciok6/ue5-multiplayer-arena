@@ -28,6 +28,20 @@ void ALobbyPlayerState::ServerSetReady_Implementation(bool bNewReady)
 	ForceNetUpdate();
 }
 
+void ALobbyPlayerState::SetPlayerName(const FString& Name)
+{
+	Super::SetPlayerName(Name);
+
+	NotifyLobbyPlayersChanged();
+}
+
+void ALobbyPlayerState::OnRep_PlayerName()
+{
+	Super::OnRep_PlayerName();
+
+	NotifyLobbyPlayersChanged();
+}
+
 void ALobbyPlayerState::OnRep_IsReady()
 {
 	UE_LOG(
@@ -37,6 +51,23 @@ void ALobbyPlayerState::OnRep_IsReady()
 		*GetPlayerName(),
 		bIsReady ? TEXT("Ready") : TEXT("Not Ready"));
 
+	UWorld* World = GetWorld();
+
+	if (World == nullptr)
+	{
+		return;
+	}
+
+	ALobbyGameState* LobbyGameState = World->GetGameState<ALobbyGameState>();
+
+	if (LobbyGameState != nullptr)
+	{
+		LobbyGameState->NotifyLobbyPlayersChanged();
+	}
+}
+
+void ALobbyPlayerState::NotifyLobbyPlayersChanged() const
+{
 	UWorld* World = GetWorld();
 
 	if (World == nullptr)

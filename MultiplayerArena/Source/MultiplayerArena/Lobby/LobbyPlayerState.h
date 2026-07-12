@@ -26,9 +26,13 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "Lobby")
 	void ServerSetReady(bool bNewReady);
 
+	virtual void SetPlayerName(const FString& Name) override;
+	virtual void OnRep_PlayerName() override;
+
 private:
 	UFUNCTION()
 	void OnRep_IsReady();
+	void NotifyLobbyPlayersChanged() const;
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsReady)
 	bool bIsReady = false;
