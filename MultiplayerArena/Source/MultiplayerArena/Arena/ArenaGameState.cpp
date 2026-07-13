@@ -55,4 +55,25 @@ void AArenaGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 	DOREPLIFETIME(AArenaGameState, RemainingMatchTime);
 	DOREPLIFETIME(AArenaGameState, bMatchFinished);
+	DOREPLIFETIME(AArenaGameState, WinnerName);
+	DOREPLIFETIME(AArenaGameState, WinningScore);
+}
+
+void AArenaGameState::SetMatchResult(const FString& NewWinnerName, int32 NewWinningScore)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	WinnerName = NewWinnerName;
+	WinningScore = FMath::Max(0, NewWinningScore);
+
+	NotifyMatchStateChanged();
+	ForceNetUpdate();
+}
+
+void AArenaGameState::OnRep_MatchResult()
+{
+	NotifyMatchStateChanged();
 }

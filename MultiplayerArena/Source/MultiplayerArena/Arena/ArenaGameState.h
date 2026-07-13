@@ -37,6 +37,20 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Arena")
 	FOnArenaMatchStateChanged OnMatchStateChanged;
 
+	UFUNCTION(BlueprintPure, Category = "Arena")
+	FString GetWinnerName() const
+	{
+		return WinnerName;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "Arena")
+	int32 GetWinningScore() const
+	{
+		return WinningScore;
+	}
+
+	void SetMatchResult(const FString& NewWinnerName, int32 NewWinningScore);
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -47,6 +61,9 @@ private:
 	UFUNCTION()
 	void OnRep_MatchFinished();
 
+	UFUNCTION()
+	void OnRep_MatchResult();
+
 	void NotifyMatchStateChanged();
 
 	UPROPERTY(ReplicatedUsing = OnRep_RemainingMatchTime)
@@ -54,4 +71,10 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchFinished)
 	bool bMatchFinished = false;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MatchResult)
+	FString WinnerName;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MatchResult)
+	int32 WinningScore = 0;
 };

@@ -7,6 +7,7 @@
 #include "TimerManager.h"
 #include "ArenaCharacter.h"
 #include "../Player/MultiplayerArenaPlayerState.h"
+#include "Engine/World.h"
 
 AArenaGameMode::AArenaGameMode()
 {
@@ -65,12 +66,32 @@ void AArenaGameMode::FinishRound()
 {
 	GetWorldTimerManager().ClearTimer(MatchTimerHandle);
 
-	if (IsValid(ArenaGameState))
+	if (!IsValid(ArenaGameState) || ArenaGameState->IsMatchFinished())
 	{
-		ArenaGameState->SetMatchFinished(true);
+		return;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Arena match finished"));
+	FString WinnerName;
+	int32 WinningScore = 0;
+
+	CalculateMatchResult(WinnerName,WinningScore);
+	ArenaGameState->SetMatchResult(WinnerName, WinningScore);
+	ArenaGameState->SetMatchFinished(true);
+
+	UE_LOG(LogTemp,
+		Log,
+		TEXT(
+			"Arena match finished. Result: %s, Score: %d"),
+		*WinnerName,
+		WinningScore);
+
+	if (ResultsDisplayDuration <= 0.0f)
+	{
+		ReturnToLobby();
+		return;
+	}
+
+	GetWorldTimerManager().SetTimer(ReturnToLobbyTimerHandle,this, &AArenaGameMode::ReturnToLobby,ResultsDisplayDuration,false);
 }
 
 void AArenaGameMode::HandlePlayerDeath(AArenaCharacter* VictimCharacter, AController* KillerController)
@@ -147,4 +168,89 @@ void AArenaGameMode::RespawnPlayer(AController* PlayerController)
 		LogTemp,
 		Log,
 		TEXT("Player respawned"));
+}
+
+void AArenaGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	if (IsValid(NewPlayer))
+	{
+		if (AMultiplayerArenaPlayerState* PlayerState = NewPlayer->GetPlayerState<AMultiplayerArenaPlayerState>())
+		{
+			PlayerState->ResetMatchStats();
+		}
+	}
+
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+}
+
+void AArenaGameMode::CalculateMatchResult(FString& OutWinnerName,int32& OutWinningScore) const
+{
+	OutWinnerName = TEXT("No Winner");
+	OutWinningScore = 0;
+
+	if (!IsValid(ArenaGameState))
+	{
+		return;
+	}
+
+	bool bFoundPlayer = false;
+	bool bIsDraw = false;
+	int32 HighestKills = -1;
+	FString LeadingPlayerName;
+
+	for (APlayerState* PlayerState :	ArenaGameState->PlayerArray)
+	{
+		const AMultiplayerArenaPlayerState* ArenaPlayerState = Cast<AMultiplayerArenaPlayerState>(PlayerState);
+
+		if (!IsValid(ArenaPlayerState))
+		{
+			continue;
+		}
+
+		const int32 PlayerKills = ArenaPlayerState->GetKills();
+
+		if (!bFoundPlayer || PlayerKills > HighestKills)
+		{
+			bFoundPlayer = true;
+			bIsDraw = false;
+			HighestKills = PlayerKills;
+			LeadingPlayerName =	ArenaPlayerState->GetPlayerName();
+		}
+		else if (PlayerKills == HighestKills)
+		{
+			bIsDraw = true;
+		}
+	}
+
+	if (!bFoundPlayer)
+	{
+		return;
+	}
+
+	OutWinningScore = HighestKills;
+	OutWinnerName = bIsDraw	? TEXT("Draw") : LeadingPlayerName;
+}
+
+void AArenaGameMode::ReturnToLobby()
+{
+	if (LobbyMapPath.IsEmpty())
+	{
+		UE_LOG(	LogTemp,
+			Error,
+			TEXT("Cannot return to lobby: map path is empty"));
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp,
+		Log,
+		TEXT("Returning players to %s"),
+		*LobbyMapPath);
+
+	World->ServerTravel(LobbyMapPath);
 }
