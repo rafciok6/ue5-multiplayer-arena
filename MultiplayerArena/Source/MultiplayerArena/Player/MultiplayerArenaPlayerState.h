@@ -9,6 +9,8 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerStatsChanged);
+
 UCLASS()
 class MULTIPLAYERARENA_API AMultiplayerArenaPlayerState : public APlayerState
 {
@@ -21,6 +23,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player Stats")
 	int32 GetDeaths() const { return Deaths; }
 
+	UPROPERTY(BlueprintAssignable, Category = "Player Stats")
+	FOnPlayerStatsChanged OnPlayerStatsChanged;
+
 	void AddKill();
 	void AddDeath();
 	void ResetMatchStats();
@@ -29,11 +34,16 @@ public:
 	virtual void OverrideWith(APlayerState* PlayerState) override;
 
 protected:
+	UFUNCTION()
+	void OnRep_Stats();
+	
+	void NotifyStatsChanged();
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player Stats")
+	UPROPERTY(ReplicatedUsing = OnRep_Stats, BlueprintReadOnly, Category = "Player Stats")
 	int32 Kills = 0;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player Stats")
+	UPROPERTY(ReplicatedUsing = OnRep_Stats, BlueprintReadOnly, Category = "Player Stats")
 	int32 Deaths = 0;
 };

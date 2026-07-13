@@ -3,6 +3,7 @@
 
 #include "ArenaPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/PlayerState.h"
 
 void AArenaPlayerController::BeginPlay()
 {
@@ -26,9 +27,16 @@ void AArenaPlayerController::EndPlay(
 	Super::EndPlay(EndPlayReason);
 }
 
+void AArenaPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	ShowArenaHUD();
+}
+
 void AArenaPlayerController::ShowArenaHUD()
 {
-	if (!IsLocalController() ||	!ArenaHUDWidgetClass ||	IsValid(ArenaHUDWidget))
+	if (!IsLocalController() || !IsValid(PlayerState) || !ArenaHUDWidgetClass || IsValid(ArenaHUDWidget))
 	{
 		return;
 	}

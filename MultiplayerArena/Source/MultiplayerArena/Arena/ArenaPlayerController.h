@@ -24,6 +24,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Arena|UI")
 	TSubclassOf<UUserWidget> ArenaHUDWidgetClass;
 
+	virtual void OnRep_PlayerState() override;
+
 private:
 	void ShowArenaHUD();
 	void RemoveArenaHUD();

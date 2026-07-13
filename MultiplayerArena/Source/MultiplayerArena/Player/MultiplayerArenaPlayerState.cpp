@@ -13,6 +13,7 @@ void AMultiplayerArenaPlayerState::AddKill()
 
 	++Kills;
 	SetScore(GetScore() + 1.0f);
+	NotifyStatsChanged();
 	ForceNetUpdate();
 }
 
@@ -24,6 +25,7 @@ void AMultiplayerArenaPlayerState::AddDeath()
 	}
 
 	++Deaths;
+	NotifyStatsChanged();
 	ForceNetUpdate();
 }
 
@@ -37,6 +39,7 @@ void AMultiplayerArenaPlayerState::ResetMatchStats()
 	Kills = 0;
 	Deaths = 0;
 	SetScore(0.0f);
+	NotifyStatsChanged();
 	ForceNetUpdate();
 }
 
@@ -62,6 +65,16 @@ void AMultiplayerArenaPlayerState::OverrideWith(APlayerState* PlayerState)
 	}
 }
 
+void AMultiplayerArenaPlayerState::OnRep_Stats()
+{
+	NotifyStatsChanged();
+}
+
+void AMultiplayerArenaPlayerState::NotifyStatsChanged()
+{
+	OnPlayerStatsChanged.Broadcast();
+}
+
 void AMultiplayerArenaPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -69,3 +82,4 @@ void AMultiplayerArenaPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimePr
 	DOREPLIFETIME(AMultiplayerArenaPlayerState, Kills);
 	DOREPLIFETIME(AMultiplayerArenaPlayerState, Deaths);
 }
+
