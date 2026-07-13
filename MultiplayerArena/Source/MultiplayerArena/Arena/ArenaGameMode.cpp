@@ -5,6 +5,8 @@
 #include "ArenaGameState.h"
 #include "ArenaPlayerState.h"
 #include "TimerManager.h"
+#include "ArenaCharacter.h"
+#include "../Player/MultiplayerArenaPlayerState.h"
 
 AArenaGameMode::AArenaGameMode()
 {
@@ -69,4 +71,80 @@ void AArenaGameMode::FinishRound()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Arena match finished"));
+}
+
+void AArenaGameMode::HandlePlayerDeath(AArenaCharacter* VictimCharacter, AController* KillerController)
+{
+	if (!IsValid(VictimCharacter))
+	{
+		return;
+	}
+
+	if (IsValid(ArenaGameState) && ArenaGameState->IsMatchFinished())
+	{
+		return;
+	}
+
+	AController* VictimController = VictimCharacter->GetController();
+
+	if (!IsValid(VictimController))
+	{
+		return;
+	}
+
+	AMultiplayerArenaPlayerState* VictimPlayerState = VictimController->GetPlayerState<AMultiplayerArenaPlayerState>();
+
+	if (IsValid(VictimPlayerState))
+	{
+		VictimPlayerState->AddDeath();
+	}
+
+	if (IsValid(KillerController) && KillerController != VictimController)
+	{
+		if (AMultiplayerArenaPlayerState* KillerPlayerState = KillerController->GetPlayerState<AMultiplayerArenaPlayerState>())
+		{
+			KillerPlayerState->AddKill();
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Player %s died. Respawning in %.1f seconds"),
+		IsValid(VictimPlayerState)
+			? *VictimPlayerState->GetPlayerName()
+			: TEXT("Unknown"),
+		RespawnDelay);
+
+	VictimController->UnPossess();
+	VictimCharacter->Destroy();
+
+	if (RespawnDelay <= 0.0f)
+	{
+		RespawnPlayer(VictimController);
+		return;
+	}
+
+	FTimerDelegate RespawnDelegate;
+	RespawnDelegate.BindUObject(this, &AArenaGameMode::RespawnPlayer, VictimController);
+
+	FTimerHandle RespawnTimerHandle;
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, RespawnDelegate, RespawnDelay,false);
+}
+
+void AArenaGameMode::RespawnPlayer(AController* PlayerController)
+{
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	if (IsValid(ArenaGameState) && ArenaGameState->IsMatchFinished())
+	{
+		return;
+	}
+
+	RestartPlayer(PlayerController);
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("Player respawned"));
 }

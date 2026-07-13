@@ -9,6 +9,7 @@
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "ArenaGameMode.h"
 
 AArenaCharacter::AArenaCharacter()
 {
@@ -81,11 +82,24 @@ void AArenaCharacter::NotifyHealthChanged()
 
 void AArenaCharacter::HandleDeath(AController* KillerController)
 {
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("Arena character %s died"),
-		*GetName());
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		return;
+	}
+
+	AArenaGameMode* ArenaGameMode = World->GetAuthGameMode<AArenaGameMode>();
+
+	if (!IsValid(ArenaGameMode))
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("ArenaGameMode is not available"));
+		return;
+	}
+
+	ArenaGameMode->HandlePlayerDeath(this, KillerController);
 }
 
 void AArenaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -153,7 +167,8 @@ void AArenaCharacter::ServerFire_Implementation()
 	{
 		return;
 	}
-
+	
+	const FString HitCharacterName = HitCharacter->GetName();
 	const float AppliedDamage = UGameplayStatics::ApplyPointDamage(HitCharacter, FireDamage, TraceDirection,HitResult,Controller,this, UDamageType::StaticClass());
 
 	if (AppliedDamage > 0.0f)
@@ -163,7 +178,7 @@ void AArenaCharacter::ServerFire_Implementation()
 			Log,
 			TEXT("%s hit %s for %.0f damage"),
 			*GetName(),
-			*HitCharacter->GetName(),
+			*HitCharacterName,
 			AppliedDamage);
 	}
 }
