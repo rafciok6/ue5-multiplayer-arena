@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerState.h"
+#include "../Player/MultiplayerArenaPlayerState.h"
 #include "LobbyPlayerState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MULTIPLAYERARENA_API ALobbyPlayerState : public APlayerState
+class MULTIPLAYERARENA_API ALobbyPlayerState : public AMultiplayerArenaPlayerState
 {
 	GENERATED_BODY()
 	
