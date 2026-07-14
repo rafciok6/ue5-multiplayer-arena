@@ -1,5 +1,4 @@
 #include "ArenaCharacter.h"
-
 #include "ArenaGameMode.h"
 #include "ArenaGameState.h"
 #include "Components/CapsuleComponent.h"
@@ -23,6 +22,11 @@ AArenaCharacter::AArenaCharacter()
 	PistolMesh->SetupAttachment(GetMesh(), TEXT("hand_r"));
 	PistolMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	PistolMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	// Reduce animation work for characters that are not visible.
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	GetMesh()->bEnableUpdateRateOptimizations = true;
+	
 	PistolMesh->SetGenerateOverlapEvents(false);
 }
 
