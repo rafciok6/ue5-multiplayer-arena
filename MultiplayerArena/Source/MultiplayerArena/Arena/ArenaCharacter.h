@@ -38,6 +38,9 @@ public:
 		return MaxHealth > 0.0f ? CurrentHealth / MaxHealth : 0.0f;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	float Heal(float HealAmount);
+
 	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FOnHealthChanged OnHealthChanged;
 

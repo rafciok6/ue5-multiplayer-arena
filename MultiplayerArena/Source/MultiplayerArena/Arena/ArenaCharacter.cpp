@@ -17,6 +17,29 @@ AArenaCharacter::AArenaCharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
 }
 
+float AArenaCharacter::Heal(float HealAmount)
+{
+	if (!HasAuthority() || bIsDead || HealAmount <= 0.0f ||	CurrentHealth >= MaxHealth)
+	{
+		return 0.0f;
+	}
+
+	const float PreviousHealth = CurrentHealth;
+
+	CurrentHealth = FMath::Clamp(CurrentHealth + HealAmount,0.0f, MaxHealth);
+
+	const float AppliedHealing =
+		CurrentHealth - PreviousHealth;
+
+	if (AppliedHealing > 0.0f)
+	{
+		NotifyHealthChanged();
+		ForceNetUpdate();
+	}
+
+	return AppliedHealing;
+}
+
 void AArenaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
