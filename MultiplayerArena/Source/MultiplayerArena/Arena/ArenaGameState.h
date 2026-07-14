@@ -65,6 +65,7 @@ private:
 	void OnRep_MatchResult();
 
 	void NotifyMatchStateChanged();
+	void SaveMatchResultToGameInstance() const;
 
 	UPROPERTY(ReplicatedUsing = OnRep_RemainingMatchTime)
 	int32 RemainingMatchTime = 0;

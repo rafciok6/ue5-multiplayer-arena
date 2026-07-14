@@ -2,6 +2,7 @@
 
 #include "ArenaGameState.h"
 #include "Net/UnrealNetwork.h"
+#include "../Game/MultiplayerArenaGameInstance.h"
 
 void AArenaGameState::SetRemainingMatchTime(int32 NewRemainingTime)
 {
@@ -49,6 +50,18 @@ void AArenaGameState::NotifyMatchStateChanged()
 	OnMatchStateChanged.Broadcast();
 }
 
+void AArenaGameState::SaveMatchResultToGameInstance() const
+{
+	UMultiplayerArenaGameInstance* GameInstance = GetGameInstance<UMultiplayerArenaGameInstance>();
+
+	if (!IsValid(GameInstance))
+	{
+		return;
+	}
+
+	GameInstance->SaveLastRoundResult(WinnerName,WinningScore);
+}
+
 void AArenaGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -69,11 +82,14 @@ void AArenaGameState::SetMatchResult(const FString& NewWinnerName, int32 NewWinn
 	WinnerName = NewWinnerName;
 	WinningScore = FMath::Max(0, NewWinningScore);
 
+	SaveMatchResultToGameInstance();
+	
 	NotifyMatchStateChanged();
 	ForceNetUpdate();
 }
 
 void AArenaGameState::OnRep_MatchResult()
 {
+	SaveMatchResultToGameInstance();
 	NotifyMatchStateChanged();
 }

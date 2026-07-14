@@ -15,8 +15,8 @@ AHealthPickup::AHealthPickup()
 	bReplicates = true;
 	SetReplicateMovement(false);
 
-	NetUpdateFrequency = 2.0f;
-	MinNetUpdateFrequency = 1.0f;
+	SetNetUpdateFrequency(2.0f);
+	SetMinNetUpdateFrequency(1.0f);
 
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 
