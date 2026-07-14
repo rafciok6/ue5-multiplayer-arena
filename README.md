@@ -28,6 +28,30 @@ Gameplay rules and replicated state are implemented in C++. Blueprints are used 
 
 The default map is `Lvl_Lobby`. Both `Lvl_Lobby` and `Lvl_Arena` are included in the project packaging settings.
 
+## Testing in the editor
+
+Before starting, open `Lvl_Lobby`. This is the intended entry point for the game.
+
+### Quick replication test
+
+1. Open the **Play** dropdown menu.
+2. Set **Number of Players** to 2 or more.
+3. Set **Net Mode** to **Play As Listen Server**.
+4. Start PIE.
+
+The editor automatically connects all player instances to the listen server. This mode is useful for quickly testing replicated gameplay, including movement, shooting, health, statistics, pickups and the lobby-to-match flow.
+
+### Testing the session flow
+
+1. Open the **Play** dropdown menu.
+2. Set **Number of Players** to 2 or more.
+3. Set **Net Mode** to **Play Standalone**.
+4. Start the game.
+5. Select **Host** in one instance.
+6. In the remaining instances, select **Find Session**, followed by **Join**.
+
+This mode can be used to test the complete hosting, session discovery and joining flow. Packaged builds on computers connected to the same local network provide the most representative LAN test.
+
 ## Testing a LAN game
 
 Packaged builds provide the most reliable way to test LAN sessions. All computers should be connected to the same local network and use the same build.
