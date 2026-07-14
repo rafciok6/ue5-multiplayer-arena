@@ -4,6 +4,7 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystemUtils.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 void UMultiplayerSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -196,7 +197,7 @@ void UMultiplayerSessionSubsystem::OnCreateSessionComplete(	FName SessionName,	b
 		return;
 	}
 
-	World->ServerTravel(TEXT("/Game/Maps/Lvl_Lobby?listen"));
+	UGameplayStatics::OpenLevel(World, FName(TEXT("/Game/Maps/Lvl_Lobby")),true,TEXT("listen"));
 }
 
 void UMultiplayerSessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)

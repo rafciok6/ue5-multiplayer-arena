@@ -9,6 +9,7 @@ void AArenaPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ConfigureGameplayInput();
 	ShowArenaHUD();
 }
 
@@ -16,6 +17,7 @@ void AArenaPlayerController::PostSeamlessTravel()
 {
 	Super::PostSeamlessTravel();
 
+	ConfigureGameplayInput();
 	ShowArenaHUD();
 }
 
@@ -63,4 +65,18 @@ void AArenaPlayerController::RemoveArenaHUD()
 
 	ArenaHUDWidget->RemoveFromParent();
 	ArenaHUDWidget = nullptr;
+}
+
+void AArenaPlayerController::ConfigureGameplayInput()
+{
+	if (!IsLocalController())
+	{
+		return;
+	}
+
+	SetInputMode(FInputModeGameOnly());
+	bShowMouseCursor = false;
+
+	ResetIgnoreMoveInput();
+	ResetIgnoreLookInput();
 }

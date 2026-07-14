@@ -29,7 +29,8 @@ protected:
 private:
 	void ShowArenaHUD();
 	void RemoveArenaHUD();
-
+	void ConfigureGameplayInput();
+	
 	UPROPERTY()
 	TObjectPtr<UUserWidget> ArenaHUDWidget;
 };
