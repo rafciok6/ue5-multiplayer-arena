@@ -14,6 +14,7 @@ public class MultiplayerArena : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
+			"Niagara",
 			"UMG",
 			"Slate"
 		});
